@@ -27,4 +27,4 @@ All required training data is also present in the `HIV` and `COVID19` directorie
 
 ### Funding
 
-This research is funded by the European Union Horizon 2020 research and innovation programme under grant agreement \#800925 (![VECMA](www.vecma.eu) project).
+This research is funded by the European Union Horizon 2020 research and innovation programme under grant agreement \#800925 ([VECMA](www.vecma.eu) project).
