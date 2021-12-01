@@ -1,4 +1,4 @@
-# deep_active_subspace_data
+# Deep active subspace data
 Data and Jupyter notebooks to reproduce the results of:
 
 W.N. Edeling, "On the deep active subspace method", (submitted), 2021.
