@@ -1,11 +1,11 @@
-"""
-Script that can be used to recompute the test / training errors. Will take several hours.
-"""
 
 import numpy as np
 import matplotlib.pyplot as plt
 import easysurrogate as es
 import pandas as pd
+
+plt.close('all')
+plt.rcParams['image.cmap'] = 'seismic'
 
 campaign = es.Campaign()
 
@@ -28,18 +28,45 @@ samples = data['outputs']
 I = 5
 samples = samples[:, I].reshape([-1, 1])
 
-# number of neurons, replicas and training / test splits
-n_neurons = 10
+# number of neurons, replicas and tra
+n_neurons = 100
 n_replicas = 100
 n_test_fracs = 10
 
-test_fracs = np.linspace(0.5, 0.1, n_test_fracs)
+test_fracs = np.linspace(0.9, 0.1, n_test_fracs)
 err_ANN = np.zeros([n_replicas, n_test_fracs, 2])
+err_ANN_unconstrained = np.zeros([n_replicas, n_test_fracs, 2])
 err_DAS = np.zeros([n_replicas, n_test_fracs, 2])
+
+########################################
+# choose the active subspace dimension #
+########################################
+d = 1
 
 for r in range(n_replicas):
 
     for n, test_frac in enumerate(test_fracs):
+
+        ########################################
+        # Train an unconstrained ANN surrogate #
+        ########################################
+    
+        surrogate_uc = es.methods.ANN_Surrogate()
+        # train ANN. the input parameters are already scaled to [-1, 1], so no need to
+        # standardize these
+        surrogate_uc.train(params, samples, 
+                        n_iter=10000, n_layers=4, n_neurons=n_neurons, 
+                        test_frac = test_frac, batch_size = 64, 
+                        standardize_X=False, standardize_y=True)
+
+        #########################
+        # Compute error metrics #
+        #########################
+        
+        analysis = es.analysis.ANN_analysis(surrogate_uc)
+        rel_err_train, rel_err_test = analysis.get_errors(params, samples, relative=True)
+        err_ANN_unconstrained[r, n, 0] = rel_err_train
+        err_ANN_unconstrained[r, n, 1] = rel_err_test
 
         ##########################
         # Train an ANN surrogate #
@@ -49,9 +76,11 @@ for r in range(n_replicas):
         # train ANN. the input parameters are already scaled to [-1, 1], so no need to
         # standardize these
         surrogate.train(params, samples, 
-                        n_iter=10000, n_layers=4, n_neurons=n_neurons, 
-                        test_frac = test_frac, batch_size = 64, standardize_X=False,
-                        standardize_y=True)
+                        n_iter=10000, n_layers=4, n_neurons=[d, n_neurons, n_neurons], 
+                        test_frac = test_frac, batch_size = 64, 
+                        # activation = ['linear', 'tanh', 'tanh'],
+                        bias = [False, True, True, True],
+                        standardize_X=False, standardize_y=True)
 
         #########################
         # Compute error metrics #
@@ -61,11 +90,7 @@ for r in range(n_replicas):
         rel_err_train, rel_err_test = analysis.get_errors(params, samples, relative=True)
         err_ANN[r, n, 0] = rel_err_train
         err_ANN[r, n, 1] = rel_err_test
-        
-        ########################################
-        # choose the active subspace dimension #
-        ########################################
-        d = 1
+
         
         #####################
         # train DAS network #
@@ -86,6 +111,8 @@ for r in range(n_replicas):
         err_DAS[r, n, 0] = rel_err_train
         err_DAS[r, n, 1] = rel_err_test
 
-# store errors
+# store data
 campaign = es.Campaign()
-campaign.store_data_to_hdf5({'err_ANN' : err_ANN, 'err_DAS' : err_DAS}, file_path='errors.hdf5')
+campaign.store_data_to_hdf5({'err_ANN' : err_ANN, 'err_DAS' : err_DAS, 
+                             'err_ANN_unconstrained' : err_ANN_unconstrained}, file_path='errors.hdf5')
+
