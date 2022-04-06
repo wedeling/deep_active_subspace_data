@@ -5,7 +5,7 @@ W.N. Edeling, "On the deep active subspace method", (submitted), 2021.
 
 We applied the deep-active subspace method to:
 
-* An HIV model consisting of 7 coupled ordinary differential equations [2], with 27 uncertain input parameters.
+* An HIV model consisting of 7 coupled ordinary differential equations, with 27 uncertain input parameters.
 
 * A COVID19 model with 51 inputs parameters.
 
