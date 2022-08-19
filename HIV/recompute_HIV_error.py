@@ -77,7 +77,7 @@ err_ANN_unconstrained = np.zeros([n_replicas, n_test_fracs, 2])
 err_DAS = np.zeros([n_replicas, n_test_fracs, 2])
 
 # test fractions
-test_fracs = np.linspace(0.9, 0.1, n_test_fracs)
+test_fracs = np.linspace(0.5, 0.1, n_test_fracs)
 
 # size of training data used
 data_size = (1 - test_fracs) * samples.size
@@ -112,10 +112,10 @@ for r in range(n_replicas):
         err_ANN_unconstrained[r, n, 0] = rel_err_train
         err_ANN_unconstrained[r, n, 1] = rel_err_test
 
-        ##########################
-        # Train an ANN surrogate #
-        ##########################
-    
+        #####################################
+        # Train a constrained ANN surrogate #
+        #####################################
+
         surrogate = es.methods.ANN_Surrogate()
         # train ANN. the input parameters are already scaled to [-1, 1], so no need to
         # standardize these
