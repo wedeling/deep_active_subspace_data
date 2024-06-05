@@ -1,7 +1,7 @@
 # Deep active subspace data
 Data and Jupyter notebooks to reproduce the results of:
 
-W.N. Edeling, "On the deep active subspace method", (submitted), 2021.
+Edeling, W. (2023). On the deep active-subspace method. SIAM/ASA Journal on Uncertainty Quantification, 11(1), 62-90.
 
 We applied the deep-active subspace method to:
 
